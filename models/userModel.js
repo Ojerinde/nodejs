@@ -15,11 +15,16 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, 'Email is not valid']
   },
   photo: String,
+  role: {
+    type: String,
+    enum: ['user', 'guide', 'lead-guide', 'admin'],
+    default: 'user'
+  },
   password: {
     type: String,
     required: [true, 'Password is required'],
     min: [8, 'MinLength should be 8'],
-    select: false
+    select: false //this doesnt work on create and save
   },
   confirmPassword: {
     type: String,
@@ -31,7 +36,8 @@ const userSchema = new mongoose.Schema({
       },
       message: 'Password does not match'
     }
-  }
+  },
+  passwordChangedAt: Date
 });
 
 // AFter the schema has been validated but befor the document is saved in the database
@@ -53,7 +59,21 @@ userSchema.methods.correctPassword = async function(
   candidatePassword,
   userPassword
 ) {
+  // the this keyword points to the user.There might be no need to pass userPassword but use this.password
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changePasswordAfter = async function(JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+
+    return JWTTimestamp < changedTimestamp;
+  }
+  // false meanse not changed
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);
