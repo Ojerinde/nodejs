@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -37,10 +38,17 @@ const userSchema = new mongoose.Schema({
       message: 'Password does not match'
     }
   },
-  passwordChangedAt: Date
+  passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: String,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false
+  }
 });
 
-// AFter the schema has been validated but befor the document is saved in the database
+// After the schema has been validated but befor the document is saved in the database
 userSchema.pre('save', async function(next) {
   // Only run if password was actually modify
   if (!this.isModified('password')) return next();
@@ -53,17 +61,25 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
+userSchema.pre('save', function(next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
 // Instance methods is available on all document in a collection
 
 userSchema.methods.correctPassword = async function(
-  candidatePassword,
-  userPassword
+  candidatePassword
+  // userPassword
 ) {
+  // console.log(userPassword, this.password);
   // the this keyword points to the user.There might be no need to pass userPassword but use this.password
-  return await bcrypt.compare(candidatePassword, userPassword);
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
-userSchema.methods.changePasswordAfter = async function(JWTTimestamp) {
+userSchema.methods.changePasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,
@@ -72,8 +88,19 @@ userSchema.methods.changePasswordAfter = async function(JWTTimestamp) {
 
     return JWTTimestamp < changedTimestamp;
   }
-  // false meanse not changed
+  // false means not changed
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function() {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);
