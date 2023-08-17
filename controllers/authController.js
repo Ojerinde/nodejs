@@ -11,8 +11,22 @@ const signToken = id => {
     expiresIn: process.env.JWT_EXPIRES_IN
   });
 };
+
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
+
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true
+  };
+
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  res.cookie('jwt', token, cookieOptions);
+
+  // Remove password from the response or output
+  user.password = undefined;
 
   res.status(statusCode).json({
     status: 'success',
@@ -45,7 +59,6 @@ exports.login = catchAsync(async (req, res, next) => {
   // Check if the user exist and the password is correct.
   // For a field that is not selected by default, we need to use '+password'
   const user = await User.findOne({ email: email }).select('+password');
-
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }

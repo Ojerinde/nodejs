@@ -36,7 +36,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
   // Update user document
   // // FindById as there is no need to run document middleware and custom validators. runValidators allow new data to align with the schema
-  const filteredBody = filerObj(req.body, 'name', 'email'); // fiter out field that shoudl not be updated
+  const filteredBody = filerObj(req.body, 'name', 'email', 'active'); // fiter out field that shoudl not be updated
 
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     runValidators: true,

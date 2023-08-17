@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// After the schema has been validated but befor the document is saved in the database
+// After the schema has been validated but before the document is saved in the database
 userSchema.pre('save', async function(next) {
   // Only run if password was actually modify
   if (!this.isModified('password')) return next();
@@ -65,6 +65,16 @@ userSchema.pre('save', function(next) {
   if (!this.isModified('password') || this.isNew) return next();
 
   this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+// Query Middleware
+
+userSchema.pre(/^find/, function(next) {
+  //  this point to query
+  // This is to never find deleted user for any operation
+  this.find({ active: { $ne: false } });
+
   next();
 });
 
