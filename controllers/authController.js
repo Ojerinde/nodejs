@@ -83,7 +83,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   // Verification of the token
-  // promisify to convert to asynchronous
+  // promisify to convert to asynchronous: promisify return a new function
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   // Check if user still exist
   const currentUser = await User.findById(decoded.id);
@@ -126,6 +126,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   if (!user)
     return next(new AppError('There is no user with the email address.', 404));
+
   // Generate the random token
   const resetToken = user.createPasswordResetToken();
 
