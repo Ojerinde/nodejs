@@ -16,7 +16,8 @@ const router = express.Router();
 //     authController.restrict('user'),
 //     reviewController.createReview
 //   );
-// Mounting the review router instead of the code above
+// Mounting the review router on the tour router. instead of the code above
+// Redirecting
 router.use('/:tourId/reviews', reviewRouter);
 
 router
@@ -24,17 +25,31 @@ router
   .get(tourController.aliasTopTours, tourController.getAllTours);
 
 router.route('/tour-stats').get(tourController.getTourStats);
-router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
+router
+  .route('/monthly-plan/:year')
+  .get(
+    authController.protect,
+    authController.restrict('admin', 'lead-guide', 'guide'),
+    tourController.getMonthlyPlan
+  );
 
 router
   .route('/')
-  .get(authController.protect, tourController.getAllTours)
-  .post(tourController.createTour);
+  .get(tourController.getAllTours)
+  .post(
+    authController.protect,
+    authController.restrict('admin', 'lead-guide'),
+    tourController.createTour
+  );
 
 router
   .route('/:id')
   .get(tourController.getTour)
-  .patch(tourController.updateTour)
+  .patch(
+    authController.protect,
+    authController.restrict('admin', 'lead-guide'),
+    tourController.updateTour
+  )
   .delete(
     authController.protect,
     authController.restrict('admin', 'lead-guide'), //or use .bind(no need to return a function in the restrict function)

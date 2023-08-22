@@ -6,7 +6,9 @@ class APIFeatures {
 
   filter() {
     const queryObj = { ...this.queryString };
+    // We cannot filter by the following four fields
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
+
     excludedFields.forEach(el => delete queryObj[el]);
 
     // 1B) Advanced filtering
