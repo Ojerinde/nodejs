@@ -64,7 +64,7 @@ exports.getTour = factory.getOne(Tour, {
 //     }
 //   });
 // });
-exports.createTour = factory.updateOne(Tour);
+exports.createTour = factory.createOne(Tour);
 
 ///////////////////////////
 // exports.updateTour = catchAsync(async (req, res, next) => {
@@ -84,7 +84,7 @@ exports.createTour = factory.updateOne(Tour);
 //     }
 //   });
 // });
-exports.updateTour = factory.deleteOne(Tour);
+exports.updateTour = factory.updateOne(Tour);
 
 ///////////////////////////
 // exports.deleteTour = catchAsync(async (req, res, next) => {

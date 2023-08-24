@@ -121,7 +121,14 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
-// THis is not stored in the database but showed in the output
+///////////////// Indexing
+// Scanning little document since the price is ordered.
+// For any field that is set to unique. Mongoose wil cretae an index for it.
+// tourSchema.index({ price: 1 });
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+
+// This is not stored in the database but showed in the output
 tourSchema.virtual('durationWeeks').get(function() {
   return this.duration / 7;
 });

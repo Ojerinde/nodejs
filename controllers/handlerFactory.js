@@ -78,7 +78,8 @@ exports.getAll = Model =>
       .sort()
       .limitFields()
       .paginate();
-
+    // improving read performance with index: query.explain()
+    // const docs = await features.query.explain();
     const docs = await features.query;
 
     // SEND RESPONSE
