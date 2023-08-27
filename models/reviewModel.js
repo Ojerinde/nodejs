@@ -34,6 +34,9 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+// index. There could only a review per use for the same tour
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 // Query middleware
 reviewSchema.pre(/^find/, function(next) {
   this.select('-__v');
