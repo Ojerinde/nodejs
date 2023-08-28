@@ -1,0 +1,32 @@
+doctype html 
+html(lang='en') 
+    //- head
+    //-     //- Interpolation
+    //-     title Natours | #{tour}
+    //-     //- Pug understand html also
+    //-     link(rel='stylesheet' href='css/style.css')
+    //-     link(rel='shortcut icon' type='image/png' href='img/favicon.png')
+    //- body 
+    //-     h1=tour
+    //-     //- buffered coder
+    //-     h2=user.toUpperCase()
+    //-     - const x = 9;
+    //-     h2= 2 * x
+    head
+        block head
+        meta(charset="UTF-8")
+        meta(name="viewport" content="width=device-width, initial-scale=1.0")
+        link(rel='stylesheet' href='/css/style.css')
+        link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Lato:300,300i,700')
+        link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
+        title Natours | #{title}
+    body
+        // HEADER
+        include _header
+
+        // CONTENT
+        block content
+            h1 This is is a placeholder heading
+
+        // FOOTER
+        include _footer
